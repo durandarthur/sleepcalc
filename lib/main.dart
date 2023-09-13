@@ -4,6 +4,12 @@ void main() {
   runApp(const MyApp());
 }
 
+extension TimeOfDayExtension on TimeOfDay {
+  TimeOfDay add({int hours = 0, int minutes = 0}) => TimeOfDay(
+      hour: hour + hours + (minute + minutes) ~/ 60,
+      minute: (minute + minutes) % 60);
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -30,6 +36,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.blueGrey, brightness: Brightness.dark),
+
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Sleep Calculator'),
@@ -57,18 +64,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TimeOfDay? selectedTime;
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,42 +72,141 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Container(
-          padding: const EdgeInsets.all(16),
-          child: Card(
-            color: Theme.of(context).colorScheme.surface,
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Image(
-                      image: AssetImage('images/moonIcon.png'),
-                      color: Colors.white,
-                      width: 100),
-                  const Text("I want to wake up at:", textScaleFactor: 2),
-                  Text(selectedTime?.format(context) ?? "No time selected."),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FilledButton(
-                          onPressed: () async {
-                            final TimeOfDay? time = await showTimePicker(
-                                context: context,
-                                initialTime: selectedTime ?? TimeOfDay.now());
-                            setState(() {
-                              selectedTime = time;
-                            });
-                          },
-                          child: const Text('Pick time')),
-                      const Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
-                      FilledButton(
-                          onPressed: () {}, child: const Text('Sleep now'))
-                    ],
-                  )
-                ],
-              ),
-            ]),
-          )), // This trailing comma makes auto-formatting nicer for build methods.
+      body: Center(
+        child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Card(
+              color: Theme.of(context).colorScheme.surface,
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const Image(
+                        image: AssetImage('images/moonIcon.png'),
+                        color: Colors.white,
+                        width: 100),
+                    Text(
+                        selectedTime != null
+                            ? "You should wake up at :"
+                            : "Pick a time to start.",
+                        textScaleFactor: 2),
+                    ConstrainedBox(
+                      constraints: BoxConstraints.loose(Size(
+                          MediaQuery.of(context).size.width * 0.8,
+                          MediaQuery.of(context).size.height * 0.4)),
+                      child: selectedTime != null
+                          ? Expanded(
+                              child: ListView(
+                                children: [
+                                  ListTile(
+                                    leading: const Text(" - "),
+                                    trailing: const Text(" for 4h30 of sleep"),
+                                    title: Text(
+                                        TimeOfDay(
+                                                hour: selectedTime!.hour,
+                                                minute: selectedTime!.minute)
+                                            .add(hours: 4, minutes: 30)
+                                            .format(context),
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .inversePrimary)),
+                                  ),
+                                  ListTile(
+                                    leading: const Text(" - "),
+                                    trailing: const Text(" for 6h00 of sleep"),
+                                    title: Text(
+                                        TimeOfDay(
+                                                hour: selectedTime!.hour,
+                                                minute: selectedTime!.minute)
+                                            .add(hours: 6, minutes: 0)
+                                            .format(context),
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .inversePrimary)),
+                                  ),
+                                  ListTile(
+                                    leading: const Text(" - "),
+                                    trailing: const Text(" for 7h30 of sleep"),
+                                    title: Text(
+                                        TimeOfDay(
+                                                hour: selectedTime!.hour,
+                                                minute: selectedTime!.minute)
+                                            .add(hours: 7, minutes: 30)
+                                            .format(context),
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .inversePrimary)),
+                                  ),
+                                  ListTile(
+                                    leading: const Text(" - "),
+                                    trailing: const Text(" for 9h00 of sleep"),
+                                    title: Text(
+                                        TimeOfDay(
+                                                hour: selectedTime!.hour,
+                                                minute: selectedTime!.minute)
+                                            .add(hours: 9, minutes: 0)
+                                            .format(context),
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .inversePrimary)),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : null,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FilledButton(
+                            style: ButtonStyle(
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                    const EdgeInsets.symmetric(
+                                        vertical: 20, horizontal: 30)),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .inversePrimary),
+                                foregroundColor:
+                                    MaterialStateProperty.all(Colors.white)),
+                            onPressed: () async {
+                              final TimeOfDay? time = await showTimePicker(
+                                  context: context,
+                                  initialTime: selectedTime ?? TimeOfDay.now());
+                              setState(() {
+                                selectedTime = time;
+                              });
+                            },
+                            child: const Text('Pick time')),
+                        const Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
+                        FilledButton(
+                            style: ButtonStyle(
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                    const EdgeInsets.symmetric(
+                                        vertical: 20, horizontal: 30)),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .inversePrimary),
+                                foregroundColor:
+                                    MaterialStateProperty.all(Colors.white)),
+                            onPressed: () {},
+                            child: const Text('Sleep now'))
+                      ],
+                    )
+                  ],
+                ),
+              ]),
+            )),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
