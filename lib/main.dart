@@ -198,7 +198,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                             .inversePrimary),
                                 foregroundColor:
                                     MaterialStateProperty.all(Colors.white)),
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                selectedTime = TimeOfDay.now();
+                              });
+                            },
                             child: const Text('Sleep now'))
                       ],
                     )
